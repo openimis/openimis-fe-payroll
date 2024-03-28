@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
@@ -27,17 +27,21 @@ function BenefitConsumptionPayrollSearcher({
   fetchedBenefitsSummary,
   benefitsSummary,
   individualUuid,
+  benefitPlan,
+  groupBeneficiaries,
+  paymentCycleUuid,
 }) {
   const modulesManager = useModulesManager();
   const { formatMessage, formatMessageWithValues } = useTranslations('payroll', modulesManager);
+  const [totalNumberOfBenefits, setTotalNumberOfBenefits] = useState(0);
 
   const fetch = (params) => fetchPayrollBenefitConsumptions(modulesManager, params);
 
   const headers = () => [
     'benefitConsumption.payroll.name',
     'benefitConsumption.payroll.benefitPlan',
-    'benefitConsumption.payroll.runMonth',
-    'benefitConsumption.payroll.runYear',
+    'benefitConsumption.payroll.startDate',
+    'benefitConsumption.payroll.endDate',
     'benefitConsumption.status',
     'benefitConsumption.code',
     'benefitConsumption.receipt',
@@ -64,8 +68,8 @@ function BenefitConsumptionPayrollSearcher({
     (payrollBenefitConsumption) => payrollBenefitConsumption?.payroll?.name,
     (payrollBenefitConsumption) => payrollBenefitConsumption?.payroll?.benefitPlanNameCode,
     // eslint-disable-next-line max-len
-    (payrollBenefitConsumption) => payrollBenefitConsumption?.payroll?.paymentCycle?.runMonth,
-    (payrollBenefitConsumption) => payrollBenefitConsumption?.payroll?.paymentCycle?.runYear,
+    (payrollBenefitConsumption) => payrollBenefitConsumption?.payroll?.paymentCycle?.startDate,
+    (payrollBenefitConsumption) => payrollBenefitConsumption?.payroll?.paymentCycle?.endDate,
     (payrollBenefitConsumption) => payrollBenefitConsumption?.benefit?.status,
     (payrollBenefitConsumption) => payrollBenefitConsumption?.benefit?.code,
     (payrollBenefitConsumption) => payrollBenefitConsumption?.benefit?.receipt,
@@ -85,8 +89,8 @@ function BenefitConsumptionPayrollSearcher({
   const sorts = () => [
     ['payroll_Name', true],
     ['payroll_benefitPlanName', false],
-    ['payroll_PaymentCycle_RunMonth', true],
-    ['payroll_PaymentCycle_RunYear', true],
+    ['payroll_PaymentCycle_StartDate', true],
+    ['payroll_PaymentCycle_EndDate', true],
     ['benefit_Status', true],
     ['benefit_Code', true],
     ['benefit_Receipt', true],
@@ -103,24 +107,61 @@ function BenefitConsumptionPayrollSearcher({
         'isDeleted: false',
       },
     };
-    if (individualUuid !== null && individualUuid !== undefined) {
+    if (groupBeneficiaries !== null && groupBeneficiaries !== undefined) {
+      // TO-DO fetching benefits for group once enrollment of group flow will be developed
+    } else if (individualUuid !== null && individualUuid !== undefined) {
       filters.benefit_Individual_Id = {
         value: individualUuid,
         filter: `benefit_Individual_Id: "${individualUuid}"`,
+      };
+    }
+    if (benefitPlan?.id) {
+      filters.benefitPlanUuid = {
+        value: benefitPlan.id,
+        filter: `benefitPlanUuid: "${benefitPlan.id}"`,
+      };
+    }
+    if (paymentCycleUuid) {
+      filters.paymentCycleUuid = {
+        value: paymentCycleUuid,
+        filter: `paymentCycleUuid: "${paymentCycleUuid}"`,
       };
     }
     return filters;
   };
 
   useEffect(() => {
-    const params = [
-      `individualId: "${individualUuid}"`,
-    ];
+    const params = [];
+    if (individualUuid) {
+      params.push(
+        `individualId: "${individualUuid}"`,
+      );
+    }
+    if (benefitPlan?.id) {
+      params.push(
+        `benefitPlanUuid: "${benefitPlan.id}"`,
+      );
+    }
+    if (paymentCycleUuid) {
+      params.push(
+        `paymentCycleUuid: "${paymentCycleUuid}"`,
+      );
+    }
     fetchBenefitsSummary(params);
   }, []);
 
+  useEffect(() => {
+    if (payrollBenefitConsumptionsTotalCount > totalNumberOfBenefits) {
+      setTotalNumberOfBenefits(payrollBenefitConsumptionsTotalCount);
+    }
+  }, [payrollBenefitConsumptionsTotalCount]);
+
   const benefitConsumptionPayrollFilter = ({ filters, onChangeFilters }) => (
-    <BenefitConsumptionPayrollFilter filters={filters} onChangeFilters={onChangeFilters} />
+    <BenefitConsumptionPayrollFilter
+      filters={filters}
+      onChangeFilters={onChangeFilters}
+      benefitPlan={benefitPlan}
+    />
   );
 
   return (
@@ -133,7 +174,7 @@ function BenefitConsumptionPayrollSearcher({
               {formatMessage('payroll.summary.totalNumberOfBenefits')}
             </Typography>
             <Typography variant="body1">
-              {payrollBenefitConsumptionsTotalCount}
+              {totalNumberOfBenefits}
             </Typography>
           </Paper>
         </Grid>

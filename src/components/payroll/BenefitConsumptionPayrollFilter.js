@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function BenefitConsumptionPayrollFilter({ filters, onChangeFilters }) {
+function BenefitConsumptionPayrollFilter({ filters, onChangeFilters, benefitPlan }) {
   const modulesManager = useModulesManager();
   const classes = useStyles();
   const { formatMessage } = useTranslations('payroll', modulesManager);
@@ -33,16 +33,6 @@ function BenefitConsumptionPayrollFilter({ filters, onChangeFilters }) {
   const filterTextFieldValue = (filterName) => filters?.[filterName]?.value ?? EMPTY_STRING;
 
   const filterValue = (filterName) => filters?.[filterName]?.value ?? null;
-
-  const onChangeFilter = (filterName) => (value) => {
-    debouncedOnChangeFilters([
-      {
-        id: filterName,
-        value: value || null,
-        filter: `${filterName}: ${value}`,
-      },
-    ]);
-  };
 
   const onChangeStringFilter = (filterName, lookup = null) => (value) => {
     if (lookup) {
@@ -80,25 +70,37 @@ function BenefitConsumptionPayrollFilter({ filters, onChangeFilters }) {
           label="benefitConsumption.payroll.benefitPlan"
           value={filterTextFieldValue('benefitPlanName')}
           onChange={onChangeStringFilter('benefitPlanName')}
+          readOnly={benefitPlan !== null && benefitPlan !== undefined}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
-        <NumberInput
+        <PublishedComponent
+          pubRef="core.DatePicker"
           module="payroll"
-          label={formatMessage('benefitConsumption.payroll.runMonth')}
-          min={0}
-          max={12}
-          value={filterValue('payroll_PaymentCycle_RunMonth')}
-          onChange={onChangeFilter('payroll_PaymentCycle_RunMonth')}
+          label={formatMessage('benefitConsumption.payroll.startDate')}
+          value={filterValue('payroll_PaymentCycle_StartDate')}
+          onChange={(v) => onChangeFilters([
+            {
+              id: 'payroll_PaymentCycle_StartDate',
+              value: v,
+              filter: `payroll_PaymentCycle_StartDate: "${v}"`,
+            },
+          ])}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
-        <NumberInput
+        <PublishedComponent
+          pubRef="core.DatePicker"
           module="payroll"
-          label={formatMessage('benefitConsumption.payroll.runYear')}
-          min={0}
-          value={filterValue('payroll_PaymentCycle_RunYear')}
-          onChange={onChangeFilter('payroll_PaymentCycle_RunYear')}
+          label={formatMessage('benefitConsumption.payroll.endDate')}
+          value={filterValue('payroll_PaymentCycle_EndDate')}
+          onChange={(v) => onChangeFilters([
+            {
+              id: 'payroll_PaymentCycle_EndDate',
+              value: v,
+              filter: `payroll_PaymentCycle_EndDate: "${v}"`,
+            },
+          ])}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
@@ -154,7 +156,7 @@ function BenefitConsumptionPayrollFilter({ filters, onChangeFilters }) {
           label={formatMessage('benefitConsumption.amount')}
           min={0}
           value={filterValue('benefit_Amount')}
-          onChange={onChangeFilter('benefit_Amount')}
+          onChange={onChangeStringFilter('benefit_Amount')}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>

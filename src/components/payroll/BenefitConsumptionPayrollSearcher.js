@@ -108,7 +108,10 @@ function BenefitConsumptionPayrollSearcher({
       },
     };
     if (groupBeneficiaries !== null && groupBeneficiaries !== undefined) {
-      // TO-DO fetching benefits for group once enrollment of group flow will be developed
+      filters.benefit_Individual_Id = {
+        value: groupBeneficiaries?.group?.head?.uuid,
+        filter: `benefit_Individual_Id: "${groupBeneficiaries?.group?.head?.uuid}"`,
+      };
     } else if (individualUuid !== null && individualUuid !== undefined) {
       filters.benefit_Individual_Id = {
         value: individualUuid,
@@ -135,6 +138,11 @@ function BenefitConsumptionPayrollSearcher({
     if (individualUuid) {
       params.push(
         `individualId: "${individualUuid}"`,
+      );
+    }
+    if (groupBeneficiaries) {
+      params.push(
+        `individualId: "${groupBeneficiaries?.group?.head?.uuid}"`,
       );
     }
     if (benefitPlan?.id) {

@@ -16,10 +16,10 @@ import {
   DEFAULT_PAGE_SIZE, MODULE_NAME, PAYROLL_PAYROLL_ROUTE, RIGHT_PAYROLL_SEARCH, ROWS_PER_PAGE_OPTIONS, PAYROLL_STATUS,
 } from '../../constants';
 import { fetchPayrolls } from '../../actions';
-import PaymentReconciliationSummaryDialog from './dialogs/PaymentReconciliationSummaryDialog';
 import PayrollReconciliationFilesDialog from './dialogs/PayrollReconciliationFilesDialog';
+import PayrollPendingPayrollSummary from './dialogs/PayrollPendingPayrollSummary';
 
-function PayrollSearcherReconciled({
+function PayrollSearcherPending({
   fetchingPayrolls,
   fetchedPayrolls,
   errorPayrolls,
@@ -71,8 +71,8 @@ function PayrollSearcherReconciled({
       filter: 'isDeleted: false',
     },
     status: {
-      value: PAYROLL_STATUS.RECONCILED,
-      filter: `status: ${PAYROLL_STATUS.RECONCILED}`,
+      value: PAYROLL_STATUS.PENDING_APPROVAL,
+      filter: `status: ${PAYROLL_STATUS.PENDING_APPROVAL}`,
     },
   });
 
@@ -101,7 +101,7 @@ function PayrollSearcherReconciled({
       />
     ),
     (payroll) => (
-      <PaymentReconciliationSummaryDialog
+      <PayrollPendingPayrollSummary
         classes={classes}
         payrollDetail={payroll}
       />
@@ -156,4 +156,4 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   coreConfirm,
 }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(PayrollSearcherReconciled);
+export default connect(mapStateToProps, mapDispatchToProps)(PayrollSearcherPending);

@@ -40,11 +40,13 @@ import {
 } from './components/payroll/PayrollTaskTabPanel';
 import { PayrollDeleteTaskItemFormatters, PayrollDeleteTaskTableHeaders } from './components/tasks/PayrollDeleteTasks';
 import { PayrollPaymentFilesTabLabel, PayrollPaymentFilesTabPanel } from './components/payroll/PayrollPaymentFilesTab';
+import PendingPayrollsPage from './pages/payroll/PendingPayrollsPage';
 
 const ROUTE_PAYMENT_POINTS = 'paymentPoints';
 const ROUTE_PAYMENT_POINT = 'paymentPoints/paymentPoint';
 const ROUTE_PAYROLLS = 'payrolls';
 const ROUTE_PAYROLLS_APPROVED = 'payrollsApproved';
+const ROUTE_PAYROLLS_PENDING = 'payrollsPending';
 const ROUTE_PAYROLLS_RECONCILED = 'payrollsReconciled';
 const ROUTE_PAYROLL = 'payrolls/payroll';
 
@@ -56,6 +58,7 @@ const DEFAULT_CONFIG = {
     { key: 'payroll.route.paymentPoint', ref: ROUTE_PAYMENT_POINT },
     { key: 'payroll.route.payrolls', ref: ROUTE_PAYROLLS },
     { key: 'payroll.route.payrollsApproved', ref: ROUTE_PAYROLLS_APPROVED },
+    { key: 'payroll.route.payrollsPending', ref: ROUTE_PAYROLLS_PENDING },
     { key: 'payroll.route.payrollsReconciled', ref: ROUTE_PAYROLLS_RECONCILED },
     { key: 'payroll.route.payroll', ref: ROUTE_PAYROLL },
     { key: 'payroll.PaymentPointPicker', ref: PaymentPointPicker },
@@ -68,6 +71,7 @@ const DEFAULT_CONFIG = {
     { path: `${ROUTE_PAYMENT_POINT}/:payment_point_uuid?`, component: PaymentPointPage },
     { path: ROUTE_PAYROLLS, component: PayrollsPage },
     { path: ROUTE_PAYROLLS_APPROVED, component: ApprovedPayrollsPage },
+    { path: ROUTE_PAYROLLS_PENDING, component: PendingPayrollsPage },
     { path: ROUTE_PAYROLLS_RECONCILED, component: ReconciledPayrollsPage },
     {
       path: `${ROUTE_PAYROLL}/:payroll_uuid?/:createPayrollFromFailedInvoices?/:benefitPlanId?`,
@@ -85,6 +89,12 @@ const DEFAULT_CONFIG = {
       text: <FormattedMessage module="payroll" id="payroll.payroll.route" />,
       icon: <MonetizationOnIcon />,
       route: `/${ROUTE_PAYROLLS}`,
+      filter: (rights) => rights.includes(RIGHT_PAYROLL_SEARCH),
+    },
+    {
+      text: <FormattedMessage module="payroll" id="payroll.route.payrollsPending" />,
+      icon: <MonetizationOnIcon />,
+      route: `/${ROUTE_PAYROLLS_PENDING}`,
       filter: (rights) => rights.includes(RIGHT_PAYROLL_SEARCH),
     },
     {

@@ -103,7 +103,7 @@ function PayrollSearcherApproved({
     (payroll) => (
       <PaymentApproveForPaymentSummary
         classes={classes}
-        payroll={payroll}
+        payrollDetail={payroll}
       />
     ),
   ];

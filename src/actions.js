@@ -74,6 +74,20 @@ const PAYROLL_PROJECTION = (modulesManager) => [
   'isDeleted',
 ];
 
+const PAYROLL_SEARCHER_PROJECTION = (modulesManager) => [
+  'id',
+  'name',
+  'paymentMethod',
+  'paymentPlan { code, id, name, benefitPlan }',
+  `paymentPoint { ${PAYMENT_POINT_PROJECTION(modulesManager).join(' ')} }`,
+  'paymentCycle { code, startDate, endDate }',
+  'jsonExt',
+  'status',
+  'dateValidFrom',
+  'dateValidTo',
+  'isDeleted',
+];
+
 const CSV_RECONCILIATION_PROJECTION = () => [
   'fileName',
   'status',
@@ -186,7 +200,7 @@ export function updatePaymentPoint(paymentPoint, clientMutationLabel) {
 }
 
 export function fetchPayrolls(modulesManager, params) {
-  const payload = formatPageQueryWithCount('payroll', params, PAYROLL_PROJECTION(modulesManager));
+  const payload = formatPageQueryWithCount('payroll', params, PAYROLL_SEARCHER_PROJECTION(modulesManager));
   return graphql(payload, ACTION_TYPE.SEARCH_PAYROLLS);
 }
 

@@ -17,18 +17,15 @@ import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { MODULE_NAME, BENEFIT_CONSUMPTION_STATUS } from '../../../constants';
-import { closePayroll, fetchPayroll, rejectPayroll } from '../../../actions';
-import { mutationLabel } from '../../../utils/string-utils';
 import BenefitConsumptionSearcherModal from '../BenefitConsumptionSearcherModal';
 import downloadPayroll from '../../../utils/export';
+import { fetchPayroll } from '../../../actions';
 
-function PaymentApproveForPaymentDialog({
+function PaymentPendingPayrollPaymentDialog({
   classes,
   payroll,
-  closePayroll,
-  rejectPayroll,
-  payrollDetail,
   fetchPayroll,
+  payrollDetail,
 }) {
   const modulesManager = useModulesManager();
   const [payrollUuid] = useState(payrollDetail?.id ?? null);
@@ -82,22 +79,6 @@ function PaymentApproveForPaymentDialog({
       setTotalReconciledBillAmount(reconciledAmount);
     }
   }, [isOpen, payroll]);
-
-  const closePayrollCallback = () => {
-    handleClose();
-    closePayroll(
-      payrollDetail,
-      formatMessageWithValues('payroll.mutation.closeLabel', mutationLabel(payrollDetail)),
-    );
-  };
-
-  const rejectPayrollCallback = () => {
-    handleClose();
-    rejectPayroll(
-      payrollDetail,
-      formatMessageWithValues('payroll.mutation.closeLabel', mutationLabel(payrollDetail)),
-    );
-  };
 
   const downloadPayrollData = (payrollUuid, payrollName) => {
     downloadPayroll(payrollUuid, payrollName);
@@ -185,18 +166,6 @@ function PaymentApproveForPaymentDialog({
           <div style={{ maxWidth: '3000px' }}>
             <div style={{ float: 'left' }}>
               <Button
-                onClick={() => closePayrollCallback(payrollDetail)}
-                variant="contained"
-                color="primary"
-                disabled={selectedBeneficiaries === 0}
-                style={{
-                  margin: '0 16px',
-                  marginBottom: '15px',
-                }}
-              >
-                {formatMessage('payroll.summary.approveAndClose')}
-              </Button>
-              <Button
                 onClick={() => downloadPayrollData(payrollDetail.id, payrollDetail.name)}
                 variant="contained"
                 color="primary"
@@ -206,17 +175,6 @@ function PaymentApproveForPaymentDialog({
                 }}
               >
                 {formatMessage('payroll.summary.download')}
-              </Button>
-              <Button
-                onClick={() => rejectPayrollCallback(payrollDetail)}
-                variant="contained"
-                color="primary"
-                style={{
-                  margin: '0 16px',
-                  marginBottom: '15px',
-                }}
-              >
-                {formatMessage('payroll.summary.reject')}
               </Button>
             </div>
             <div style={{
@@ -247,9 +205,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
-  closePayroll,
-  rejectPayroll,
   fetchPayroll,
 }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentApproveForPaymentDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(PaymentPendingPayrollPaymentDialog);

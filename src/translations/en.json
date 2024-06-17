@@ -124,6 +124,7 @@
     "payroll.paymentData.upload.label": "Upload Payment Data",
 
     "payroll.route.payrollsApproved": "Approved Payrolls",
+    "payroll.route.payrollsPending": "Pending Payrolls",
     "payroll.route.payrollsReconciled": "Reconciled Payrolls",
     "payroll.tasks.rejected.title": "Rejected Payrolls",
     "payroll.PayrollTaskTab.label": "Tasks",

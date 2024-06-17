@@ -26,13 +26,17 @@ import {
 import downloadPayroll from '../../../utils/export';
 
 import BenefitConsumptionSearcherModal from '../BenefitConsumptionSearcherModal';
+import { fetchPayroll } from '../../../actions';
 
 function PaymentReconcilationSummarytDialog({
   classes,
   payroll,
+  payrollDetail,
+  fetchPayroll,
 }) {
   const history = useHistory();
   const modulesManager = useModulesManager();
+  const [payrollUuid] = useState(payrollDetail?.id ?? null);
   const { formatMessage, formatMessageWithValues } = useTranslations(MODULE_NAME, modulesManager);
   const [isOpen, setIsOpen] = useState(false);
   const [totalBeneficiaries, setTotalBeneficiaries] = useState(0);
@@ -41,6 +45,9 @@ function PaymentReconcilationSummarytDialog({
   const [totalReconciledBillAmount, setTotalReconciledBillAmount] = useState(0);
 
   const handleOpen = () => {
+    if (payrollUuid) {
+      fetchPayroll(modulesManager, [`id: "${payrollUuid}"`]);
+    }
     setIsOpen(true);
   };
 
@@ -50,12 +57,12 @@ function PaymentReconcilationSummarytDialog({
 
   const handleCreatePaymentForFailedInvoice = () => {
     history.push(
-      `/${modulesManager.getRef(PAYROLL_PAYROLL_ROUTE)}/${payroll?.id}/${PAYROLL_FROM_FAILED_INVOICES_URL_PARAM}`,
+      `/${modulesManager.getRef(PAYROLL_PAYROLL_ROUTE)}/${payrollDetail?.id}/${PAYROLL_FROM_FAILED_INVOICES_URL_PARAM}`,
     );
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && Object.keys(payroll).length > 0) {
       // Calculate total benefits and reconciled benefits
       const total = payroll.benefitConsumption.length;
       const selected = payroll.benefitConsumption.filter(
@@ -119,7 +126,7 @@ function PaymentReconcilationSummarytDialog({
             marginTop: '10px',
           }}
         >
-          {formatMessageWithValues('payroll.reconciliationSummary', { payrollName: payroll.name })}
+          {formatMessageWithValues('payroll.reconciliationSummary', { payrollName: payrollDetail.name })}
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
@@ -157,7 +164,7 @@ function PaymentReconcilationSummarytDialog({
           <div
             style={{ backgroundColor: '#DFEDEF' }}
           >
-            <BenefitConsumptionSearcherModal payrollUuid={payroll.id} reconciledMode />
+            <BenefitConsumptionSearcherModal payrollUuid={payrollDetail.id} reconciledMode />
           </div>
         </DialogContent>
         <DialogActions
@@ -184,7 +191,7 @@ function PaymentReconcilationSummarytDialog({
                 {formatMessage('payroll.summary.createPaymentForFailedInvoice')}
               </Button>
               <Button
-                onClick={() => downloadPayrollData(payroll.id, payroll.name)}
+                onClick={() => downloadPayrollData(payrollDetail.id, payrollDetail.name)}
                 variant="contained"
                 color="primary"
                 style={{
@@ -219,9 +226,11 @@ function PaymentReconcilationSummarytDialog({
 const mapStateToProps = (state) => ({
   rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
   confirmed: state.core.confirmed,
+  payroll: state.payroll.payroll,
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
+  fetchPayroll,
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentReconcilationSummarytDialog);

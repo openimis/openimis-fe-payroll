@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useState } from 'react';
 import { Paper, Grid } from '@material-ui/core';
 import {
@@ -90,7 +91,7 @@ function PayrollTab({
               {formatMessage('payroll.summary.download')}
             </Button>
             )}
-            {payrollUuid && payroll?.status === PAYROLL_STATUS.APPROVE_FOR_PAYMENT
+            {payrollUuid && payroll?.status === PAYROLL_STATUS.APPROVE_FOR_PAYMENT && payroll.paymentMethod === 'StrategyOfflinePayment'
                 && (
                 <PayrollPaymentDataUploadDialog
                   payrollUuid={payrollUuid}

@@ -17,7 +17,9 @@ import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { MODULE_NAME, BENEFIT_CONSUMPTION_STATUS } from '../../../constants';
-import { closePayroll, fetchPayroll, rejectPayroll } from '../../../actions';
+import {
+  closePayroll, fetchPayroll, makePaymentForPayroll, rejectPayroll,
+} from '../../../actions';
 import { mutationLabel } from '../../../utils/string-utils';
 import BenefitConsumptionSearcherModal from '../BenefitConsumptionSearcherModal';
 import downloadPayroll from '../../../utils/export';
@@ -29,12 +31,14 @@ function PaymentApproveForPaymentDialog({
   rejectPayroll,
   payrollDetail,
   fetchPayroll,
+  makePaymentForPayroll,
 }) {
   const modulesManager = useModulesManager();
   const [payrollUuid] = useState(payrollDetail?.id ?? null);
   const [isOpen, setIsOpen] = useState(false);
   const [totalBeneficiaries, setTotalBeneficiaries] = useState(0);
   const [selectedBeneficiaries, setSelectedBeneficiaries] = useState(0);
+  const [approvedBeneficiaries, setApprovedBeneficiaries] = useState(0);
   const [totalBillAmount, setTotalBillAmount] = useState(0);
   const [totalReconciledBillAmount, setTotalReconciledBillAmount] = useState(0);
 
@@ -58,9 +62,14 @@ function PaymentApproveForPaymentDialog({
       const selected = payroll.benefitConsumption.filter(
         (benefit) => benefit.status === BENEFIT_CONSUMPTION_STATUS.RECONCILED,
       ).length;
+      const approved = payroll.benefitConsumption.filter(
+        (benefit) => benefit.status === BENEFIT_CONSUMPTION_STATUS.APPROVE_FOR_PAYMENT,
+      ).length;
 
       setTotalBeneficiaries(total);
       setSelectedBeneficiaries(selected);
+      console.log(approved);
+      setApprovedBeneficiaries(approved);
 
       let totalAmount = 0;
       let reconciledAmount = 0;
@@ -94,6 +103,14 @@ function PaymentApproveForPaymentDialog({
   const rejectPayrollCallback = () => {
     handleClose();
     rejectPayroll(
+      payrollDetail,
+      formatMessageWithValues('payroll.mutation.closeLabel', mutationLabel(payrollDetail)),
+    );
+  };
+
+  const makePaymentForPayrollCallback = () => {
+    handleClose();
+    makePaymentForPayroll(
       payrollDetail,
       formatMessageWithValues('payroll.mutation.closeLabel', mutationLabel(payrollDetail)),
     );
@@ -188,7 +205,11 @@ function PaymentApproveForPaymentDialog({
                 onClick={() => closePayrollCallback(payrollDetail)}
                 variant="contained"
                 color="primary"
-                disabled={selectedBeneficiaries === 0}
+                disabled={
+                  payrollDetail.paymentMethod === 'StrategyOnlinePayment'
+                    ? approvedBeneficiaries === 0
+                    : selectedBeneficiaries === 0
+                }
                 style={{
                   margin: '0 16px',
                   marginBottom: '15px',
@@ -224,6 +245,18 @@ function PaymentApproveForPaymentDialog({
               paddingRight: '16px',
             }}
             >
+              {payrollDetail.paymentMethod === 'StrategyOnlinePayment' && (
+                <Button
+                  onClick={() => makePaymentForPayrollCallback(payrollDetail)}
+                  variant="contained"
+                  color="primary"
+                  style={{
+                    margin: '0 16px',
+                  }}
+                >
+                  {formatMessage('payroll.summary.makePayment')}
+                </Button>
+              )}
               <Button
                 onClick={handleClose}
                 variant="outlined"
@@ -250,6 +283,7 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   closePayroll,
   rejectPayroll,
   fetchPayroll,
+  makePaymentForPayroll,
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentApproveForPaymentDialog);

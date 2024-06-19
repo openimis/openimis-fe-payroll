@@ -290,3 +290,13 @@ export function rejectPayroll(payroll, clientMutationLabel) {
     clientMutationLabel,
   );
 }
+
+export function makePaymentForPayroll(payroll, clientMutationLabel) {
+  const payrollUuids = `ids: ["${payroll?.id}"]`;
+  return PERFORM_MUTATION(
+    MUTATION_SERVICE.PAYROLL.MAKE_PAYMENT,
+    payrollUuids,
+    ACTION_TYPE.MAKE_PAYMENT_PAYROLL,
+    clientMutationLabel,
+  );
+}

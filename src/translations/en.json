@@ -94,6 +94,7 @@
     "payroll.viewReconciliationSummary": "View Reconciliation Summary",
     "payroll.reconciliationSummary": "View Reconciliation Summary: {payrollName}",
     "payroll.summary.confirm": "Confirm",
+    "payroll.summary.makePayment": "Make Payment",
     "payroll.summary.name": "Name",
     "payroll.summary.amount": "Amount",
     "payroll.summary.receipt": "Receipt",

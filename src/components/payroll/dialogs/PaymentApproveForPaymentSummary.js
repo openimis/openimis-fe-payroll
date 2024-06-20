@@ -68,7 +68,6 @@ function PaymentApproveForPaymentDialog({
 
       setTotalBeneficiaries(total);
       setSelectedBeneficiaries(selected);
-      console.log(approved);
       setApprovedBeneficiaries(approved);
 
       let totalAmount = 0;

@@ -38,6 +38,7 @@ function BenefitConsumptionSearcherModal({
     'benefitConsumption.dateDue',
     'benefitConsumption.payedOnTime',
     'benefitConsumption.paymentDate',
+    'benefitConsumption.status',
     '',
   ];
 
@@ -68,6 +69,7 @@ function BenefitConsumptionSearcherModal({
         ? ''
         : benefitAttachment?.bill?.datePayed
     ),
+    (benefitAttachment) => benefitAttachment?.benefit?.status,
     (benefitAttachment) => (
       <Button
         onClick={() => {}}

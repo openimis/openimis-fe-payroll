@@ -116,8 +116,8 @@ function PaymentReconcilationSummarytDialog({
             top: '50%',
             left: '50%',
             transform: 'translate(-50%,-50%)',
-            width: '75%',
-            maxWidth: '75%',
+            width: '90%',
+            maxWidth: '90%',
           },
         }}
       >
@@ -164,7 +164,7 @@ function PaymentReconcilationSummarytDialog({
           <div
             style={{ backgroundColor: '#DFEDEF' }}
           >
-            <BenefitConsumptionSearcherModal payrollUuid={payrollDetail.id} reconciledMode />
+            <BenefitConsumptionSearcherModal payrollUuid={payrollDetail.id} payrollDetail={payrollDetail} reconciledMode />
           </div>
         </DialogContent>
         <DialogActions

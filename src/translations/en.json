@@ -136,5 +136,10 @@
     "payroll.payrollPaymentFile.error": "Error",
     "payrollPaymentFile.download": "Download",
     "payroll.payrollPaymentFilesSearcher.results": "{totalCount} Files Found",
-    "payroll.PayrollPaymentFilesTab.label": "Payment Files"
+    "payroll.PayrollPaymentFilesTab.label": "Payment Files",
+    "payroll.summary.benefit_error": "Error",
+    "payroll.errorSummary.close": "Close",
+    "payroll.errorSummary.outputGateway": "Output from payment gateway",
+    "payroll.errorSummary.outputGateway.noInfo": " There is no information from payment gateway why invoice is not reconciled. Please contact to administrator for further investigation!",
+    "payroll.errorSummary.title": "Error summary"
 }

@@ -151,7 +151,7 @@ function PaymentPendingPayrollPaymentDialog({
           <div
             style={{ backgroundColor: '#DFEDEF' }}
           >
-            <BenefitConsumptionSearcherModal payrollUuid={payrollDetail.id} />
+            <BenefitConsumptionSearcherModal payrollUuid={payrollDetail.id} payrollDetail={payrollDetail} />
           </div>
         </DialogContent>
         <DialogActions

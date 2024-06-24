@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import React from 'react';
+import React, { useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
@@ -10,6 +10,7 @@ import PhotoCameraOutlinedIcon from '@material-ui/icons/PhotoCameraOutlined';
 import { fetchBenefitAttachments } from '../../actions';
 import { DEFAULT_PAGE_SIZE, ROWS_PER_PAGE_OPTIONS, PAYROLL_STATUS } from '../../constants';
 import BenefitConsumptionFilterModal from './BenefitConsumptionFilterModal';
+import ErrorSummaryModal from './dialogs/ErrorSummaryModal';
 
 function BenefitConsumptionSearcherModal({
   fetchBenefitAttachments,
@@ -21,9 +22,11 @@ function BenefitConsumptionSearcherModal({
   benefitAttachmentsTotalCount,
   payrollUuid,
   reconciledMode,
+  payrollDetail,
 }) {
   const modulesManager = useModulesManager();
   const { formatMessage, formatMessageWithValues } = useTranslations('payroll', modulesManager);
+  const [selectedBenefitAttachment, setSelectedBenefitAttachment] = useState(null);
 
   const fetch = (params) => {
     fetchBenefitAttachments(modulesManager, params);
@@ -80,6 +83,18 @@ function BenefitConsumptionSearcherModal({
         {formatMessage('payroll.summary.confirm')}
       </Button>
     ),
+    (benefitAttachment) => (
+      payrollDetail.paymentMethod === 'StrategyOnlinePayment' && payrollDetail.status === 'RECONCILED'
+        && benefitAttachment.benefit.status !== 'RECONCILED' && (
+          <Button
+            onClick={() => setSelectedBenefitAttachment(benefitAttachment)}
+            variant="contained"
+            style={{ backgroundColor: '#b80000', color: 'white' }}
+          >
+            {formatMessage('payroll.summary.benefit_error')}
+          </Button>
+      )
+    ),
   ];
 
   const rowIdentifier = (benefitAttachment) => benefitAttachment.id;
@@ -104,7 +119,7 @@ function BenefitConsumptionSearcherModal({
         filter: `payrollUuid: "${payrollUuid}"`,
       },
     };
-    if (reconciledMode) {
+    if (reconciledMode && payrollDetail.paymentMethod !== 'StrategyOnlinePayment') {
       filters.benefit_Status = {
         value: 'RECONCILED',
         filter: `benefit_Status: ${PAYROLL_STATUS.RECONCILED}`,
@@ -139,6 +154,13 @@ function BenefitConsumptionSearcherModal({
         rowIdentifier={rowIdentifier}
         defaultFilters={defaultFilters()}
       />
+      {selectedBenefitAttachment && (
+        <ErrorSummaryModal
+          open={!!selectedBenefitAttachment}
+          onClose={() => setSelectedBenefitAttachment(null)}
+          benefitAttachment={selectedBenefitAttachment}
+        />
+      )}
     </div>
   );
 }

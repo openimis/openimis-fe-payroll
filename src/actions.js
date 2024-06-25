@@ -54,7 +54,7 @@ const BENEFIT_CONSUMPTION_SUMMARY_PROJECTION = () => [
 ];
 
 const BENEFIT_ATTACHMENT_PROJECTION = () => [
-  'benefit{id, status, code, dateDue, receipt, individual {firstName, lastName}}',
+  'benefit{id, status, code, dateDue, receipt, individual {firstName, lastName}, jsonExt}',
   'bill{id, code, terms, amountTotal, datePayed}',
 ];
 

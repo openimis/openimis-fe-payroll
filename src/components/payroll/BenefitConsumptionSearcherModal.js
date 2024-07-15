@@ -3,14 +3,22 @@ import React, { useState } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import {
   Searcher, useModulesManager, useTranslations,
 } from '@openimis/fe-core';
 import PhotoCameraOutlinedIcon from '@material-ui/icons/PhotoCameraOutlined';
-import { fetchBenefitAttachments } from '../../actions';
-import { DEFAULT_PAGE_SIZE, ROWS_PER_PAGE_OPTIONS, PAYROLL_STATUS } from '../../constants';
+import { fetchBenefitAttachments, deleteBenefitConsumption } from '../../actions';
+import {
+  DEFAULT_PAGE_SIZE, ROWS_PER_PAGE_OPTIONS, PAYROLL_STATUS,
+} from '../../constants';
 import BenefitConsumptionFilterModal from './BenefitConsumptionFilterModal';
 import ErrorSummaryModal from './dialogs/ErrorSummaryModal';
+import { mutationLabel } from '../../utils/string-utils';
 
 function BenefitConsumptionSearcherModal({
   fetchBenefitAttachments,
@@ -23,13 +31,48 @@ function BenefitConsumptionSearcherModal({
   payrollUuid,
   reconciledMode,
   payrollDetail,
+  deleteBenefitConsumption,
 }) {
   const modulesManager = useModulesManager();
   const { formatMessage, formatMessageWithValues } = useTranslations('payroll', modulesManager);
   const [selectedBenefitAttachment, setSelectedBenefitAttachment] = useState(null);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [benefitToDelete, setBenefitToDelete] = useState(null);
 
   const fetch = (params) => {
     fetchBenefitAttachments(modulesManager, params);
+  };
+
+  const defaultFilters = () => {
+    const filters = {
+      isDeleted: {
+        value: false,
+        filter: 'isDeleted: false',
+      },
+      payrollUuid: {
+        value: payrollUuid,
+        filter: `payrollUuid: "${payrollUuid}"`,
+      },
+    };
+    if (reconciledMode && payrollDetail.paymentMethod !== 'StrategyOnlinePayment') {
+      filters.benefit_Status = {
+        value: 'RECONCILED',
+        filter: `benefit_Status: ${PAYROLL_STATUS.RECONCILED}`,
+      };
+    }
+    return filters;
+  };
+
+  const defaultFiltersArray = () => {
+    const filters = [
+      'isDeleted: false',
+      `first: ${DEFAULT_PAGE_SIZE}`,
+      `payrollUuid: "${payrollUuid}"`,
+    ];
+    if (reconciledMode && payrollDetail.paymentMethod !== 'StrategyOnlinePayment') {
+      filters.push(`benefit_Status: ${PAYROLL_STATUS.RECONCILED}`);
+    }
+    return filters;
   };
 
   const headers = () => [
@@ -45,14 +88,30 @@ function BenefitConsumptionSearcherModal({
     '',
   ];
 
+  const confirmDeleteBenefitConsumption = (benefit) => {
+    setBenefitToDelete(benefit);
+    setOpenConfirmDialog(true);
+  };
+
+  const handleDeleteBenefitConsumption = () => {
+    deleteBenefitConsumption(
+      benefitToDelete.benefit,
+      formatMessageWithValues('payroll.mutation.deleteLabel', mutationLabel(benefitToDelete.benefit.code)),
+    );
+    setOpenConfirmDialog(false);
+    setBenefitToDelete(null);
+    const filters = defaultFiltersArray();
+    fetchBenefitAttachments(modulesManager, filters); // Refresh the searcher after deletion
+  };
+
   const checkBenefitDueDate = (benefitAttachment) => {
     if (!benefitAttachment.benefit.receipt) {
       return ''; // return empty string if datePayed is null
     }
 
     return (
-      benefitAttachment.benefit && benefitAttachment.benefit.dateDue >= benefitAttachment.bill.datePayed)
-      ? 'True' : 'False';
+      benefitAttachment.benefit && benefitAttachment.benefit.dateDue >= benefitAttachment.bill.datePayed
+    ) ? 'True' : 'False';
   };
 
   const itemFormatters = () => [
@@ -84,7 +143,7 @@ function BenefitConsumptionSearcherModal({
       </Button>
     ),
     (benefitAttachment) => (
-      payrollDetail.paymentMethod === 'StrategyOnlinePayment' && payrollDetail.status === 'RECONCILED'
+      payrollDetail.paymentMethod === 'StrategyOnlinePayment' && payrollDetail.status === PAYROLL_STATUS.RECONCILED
         && benefitAttachment.benefit.status !== 'RECONCILED' && (
           <Button
             onClick={() => setSelectedBenefitAttachment(benefitAttachment)}
@@ -93,6 +152,18 @@ function BenefitConsumptionSearcherModal({
           >
             {formatMessage('payroll.summary.benefit_error')}
           </Button>
+      )
+    ),
+    (benefitAttachment) => (
+      payrollDetail.status === PAYROLL_STATUS.PENDING_APPROVAL
+      && benefitAttachment.benefit.status !== 'PENDING_DELETION' && (
+        <Button
+          onClick={() => confirmDeleteBenefitConsumption(benefitAttachment)}
+          variant="contained"
+          style={{ backgroundColor: '#b80000', color: 'white' }}
+        >
+          {formatMessage('payroll.summary.benefit_delete')}
+        </Button>
       )
     ),
   ];
@@ -107,26 +178,6 @@ function BenefitConsumptionSearcherModal({
     ['benefit_receipt', true],
     ['benefit_dateDue', true],
   ];
-
-  const defaultFilters = () => {
-    const filters = {
-      isDeleted: {
-        value: false,
-        filter: 'isDeleted: false',
-      },
-      payrollUuid: {
-        value: payrollUuid,
-        filter: `payrollUuid: "${payrollUuid}"`,
-      },
-    };
-    if (reconciledMode && payrollDetail.paymentMethod !== 'StrategyOnlinePayment') {
-      filters.benefit_Status = {
-        value: 'RECONCILED',
-        filter: `benefit_Status: ${PAYROLL_STATUS.RECONCILED}`,
-      };
-    }
-    return filters;
-  };
 
   const benefitConsumptionFilterModal = ({ filters, onChangeFilters }) => (
     <BenefitConsumptionFilterModal filters={filters} onChangeFilters={onChangeFilters} />
@@ -161,6 +212,25 @@ function BenefitConsumptionSearcherModal({
           benefitAttachment={selectedBenefitAttachment}
         />
       )}
+      <Dialog
+        open={openConfirmDialog}
+        onClose={() => setOpenConfirmDialog(false)}
+      >
+        <DialogTitle>{formatMessage('benefitConsumption.delete.confirm.title')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {formatMessage('benefitConsumption.delete.confirm.message')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
+            {formatMessage('benefitConsumption.cancel')}
+          </Button>
+          <Button onClick={handleDeleteBenefitConsumption} color="primary" autoFocus>
+            {formatMessage('benefitConsumption.confirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
@@ -175,7 +245,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators(
-  { fetchBenefitAttachments },
+  { fetchBenefitAttachments, deleteBenefitConsumption },
   dispatch,
 );
 

@@ -220,6 +220,17 @@ export function deletePayrolls(payroll, clientMutationLabel) {
   );
 }
 
+export function deleteBenefitConsumption(benefit, clientMutationLabel) {
+  const uuid = isBase64Encoded(benefit.id) ? decodeId(benefit?.id) : benefit?.id;
+  const benefitUuids = `ids: ["${uuid}"]`;
+  return PERFORM_MUTATION(
+    MUTATION_SERVICE.BENEFIT_CONSUMPTION.DELETE,
+    benefitUuids,
+    ACTION_TYPE.DELETE_BENEFIT_CONSUMPTION,
+    clientMutationLabel,
+  );
+}
+
 export function createPayroll(payroll, clientMutationLabel) {
   return PERFORM_MUTATION(
     MUTATION_SERVICE.PAYROLL.CREATE,

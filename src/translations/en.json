@@ -138,8 +138,14 @@
     "payroll.payrollPaymentFilesSearcher.results": "{totalCount} Files Found",
     "payroll.PayrollPaymentFilesTab.label": "Payment Files",
     "payroll.summary.benefit_error": "Error",
+    "payroll.summary.benefit_delete": "Delete",
     "payroll.errorSummary.close": "Close",
     "payroll.errorSummary.outputGateway": "Output from payment gateway",
     "payroll.errorSummary.outputGateway.noInfo": " There is no information from payment gateway why invoice is not reconciled. Please contact to administrator for further investigation!",
-    "payroll.errorSummary.title": "Error summary"
+    "payroll.errorSummary.title": "Error summary",
+
+    "payroll.benefitConsumption.confirm": "Confirm",
+    "payroll.benefitConsumption.cancel": "Cancel",
+    "payroll.benefitConsumption.delete.confirm.title": "Delete Benefit Consumption",
+    "payroll.benefitConsumption.delete.confirm.message": "Are you sure you want to delete the Benefit Consumption? Once you click confirm, additional approval on the task level is required to permanently delete it."
 }

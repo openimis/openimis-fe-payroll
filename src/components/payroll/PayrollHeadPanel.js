@@ -2,7 +2,7 @@
 import React from 'react';
 import { injectIntl } from 'react-intl';
 
-import { Grid } from '@material-ui/core';
+import { Grid, Divider, Typography } from '@material-ui/core';
 import { withStyles, withTheme } from '@material-ui/core/styles';
 
 import {
@@ -11,6 +11,7 @@ import {
   PublishedComponent,
   TextInput,
   withModulesManager,
+  FormattedMessage,
 } from '@openimis/fe-core';
 import AdvancedFiltersDialog from './AdvancedFiltersDialog';
 import { CLEARED_STATE_FILTER } from '../../constants';
@@ -41,13 +42,17 @@ class PayrollHeadPanel extends FormPanel {
   };
 
   getDefaultAppliedCustomFilters = () => {
+    console.log(this.props?.edited, 'xx');
     const { jsonExt } = this.props?.edited ?? {};
+    console.log(jsonExt, 'xx');
     try {
       const jsonData = JSON.parse(jsonExt);
       const advancedCriteria = jsonData.advanced_criteria || [];
+      console.log(advancedCriteria, 'ad');
       return advancedCriteria.map(({ custom_filter_condition }) => {
         const [field, filter, typeValue] = custom_filter_condition.split('__');
         const [type, value] = typeValue.split('=');
+        console.log(custom_filter_condition);
         return {
           custom_filter_condition,
           field,
@@ -57,6 +62,7 @@ class PayrollHeadPanel extends FormPanel {
         };
       });
     } catch (error) {
+      console.log(error, 'xxx');
       return [];
     }
   };
@@ -77,24 +83,6 @@ class PayrollHeadPanel extends FormPanel {
     const { appliedCustomFilters, appliedFiltersRowStructure } = this.state;
     return (
       <>
-        {!isPayrollFromFailedInvoices
-            && (
-            <AdvancedFiltersDialog
-              object={payroll?.paymentPlan?.benefitPlan
-                ? JSON.parse(JSON.parse(payroll.paymentPlan.benefitPlan))
-                : null}
-              objectToSave={payroll}
-              moduleName="social_protection"
-              objectType="BenefitPlan"
-              setAppliedCustomFilters={this.setAppliedCustomFilters}
-              appliedCustomFilters={appliedCustomFilters}
-              appliedFiltersRowStructure={appliedFiltersRowStructure}
-              setAppliedFiltersRowStructure={this.setAppliedFiltersRowStructure}
-              updateAttributes={this.updateJsonExt}
-              getDefaultAppliedCustomFilters={this.getDefaultAppliedCustomFilters}
-              readOnly={readOnly}
-            />
-            )}
         <Grid container className={classes.item}>
           <Grid item xs={3} className={classes.item}>
             <TextInput
@@ -183,6 +171,44 @@ class PayrollHeadPanel extends FormPanel {
             />
           </Grid>
         </Grid>
+        <Divider />
+        {!isPayrollFromFailedInvoices
+            && (
+            <>
+              <>
+                <Typography>
+                  <div className={classes.item}>
+                    <FormattedMessage module="contributionPlan" id="paymentPlan.advancedCriteria" />
+                  </div>
+                </Typography>
+                <div className={classes.item}>
+                  <FormattedMessage module="contributionPlan" id="paymentPlan.advancedCriteria.tip" />
+                </div>
+                <Divider />
+                <Grid container className={classes.item}>
+
+                  <AdvancedFiltersDialog
+                    object={payroll?.paymentPlan?.benefitPlan
+                      ? JSON.parse(JSON.parse(payroll.paymentPlan.benefitPlan))
+                      : null}
+                    objectToSave={payroll}
+                    moduleName="social_protection"
+                    objectType="BenefitPlan"
+                    setAppliedCustomFilters={this.setAppliedCustomFilters}
+                    appliedCustomFilters={appliedCustomFilters}
+                    appliedFiltersRowStructure={appliedFiltersRowStructure}
+                    setAppliedFiltersRowStructure={this.setAppliedFiltersRowStructure}
+                    updateAttributes={this.updateJsonExt}
+                    getDefaultAppliedCustomFilters={this.getDefaultAppliedCustomFilters}
+                    readOnly={readOnly}
+                    edited={this.props.edited}
+                  />
+
+                </Grid>
+              </>
+              <Divider />
+            </>
+            )}
       </>
     );
   }

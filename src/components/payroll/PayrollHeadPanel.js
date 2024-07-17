@@ -2,7 +2,7 @@
 import React from 'react';
 import { injectIntl } from 'react-intl';
 
-import { Grid } from '@material-ui/core';
+import { Grid, Divider, Typography } from '@material-ui/core';
 import { withStyles, withTheme } from '@material-ui/core/styles';
 
 import {
@@ -11,6 +11,7 @@ import {
   PublishedComponent,
   TextInput,
   withModulesManager,
+  FormattedMessage,
 } from '@openimis/fe-core';
 import AdvancedFiltersDialog from './AdvancedFiltersDialog';
 import { CLEARED_STATE_FILTER } from '../../constants';
@@ -34,18 +35,30 @@ class PayrollHeadPanel extends FormPanel {
     };
   }
 
+  componentDidMount() {
+    this.setStateFromProps(this.props);
+  }
+
+  setStateFromProps = (props) => {
+    const { jsonExt } = props?.edited ?? {};
+    if (jsonExt) {
+      const filters = this.getDefaultAppliedCustomFilters(jsonExt);
+      this.setState({ appliedCustomFilters: filters, appliedFiltersRowStructure: filters });
+    }
+  };
+
   updateJsonExt = (value) => {
     this.updateAttributes({
       jsonExt: value,
     });
   };
 
-  getDefaultAppliedCustomFilters = () => {
-    const { jsonExt } = this.props?.edited ?? {};
+  // eslint-disable-next-line class-methods-use-this
+  getDefaultAppliedCustomFilters = (jsonExt) => {
     try {
       const jsonData = JSON.parse(jsonExt);
       const advancedCriteria = jsonData.advanced_criteria || [];
-      return advancedCriteria.map(({ custom_filter_condition }) => {
+      const transformedCriteria = advancedCriteria.map(({ custom_filter_condition }) => {
         const [field, filter, typeValue] = custom_filter_condition.split('__');
         const [type, value] = typeValue.split('=');
         return {
@@ -56,6 +69,7 @@ class PayrollHeadPanel extends FormPanel {
           value,
         };
       });
+      return transformedCriteria;
     } catch (error) {
       return [];
     }
@@ -77,24 +91,6 @@ class PayrollHeadPanel extends FormPanel {
     const { appliedCustomFilters, appliedFiltersRowStructure } = this.state;
     return (
       <>
-        {!isPayrollFromFailedInvoices
-            && (
-            <AdvancedFiltersDialog
-              object={payroll?.paymentPlan?.benefitPlan
-                ? JSON.parse(JSON.parse(payroll.paymentPlan.benefitPlan))
-                : null}
-              objectToSave={payroll}
-              moduleName="social_protection"
-              objectType="BenefitPlan"
-              setAppliedCustomFilters={this.setAppliedCustomFilters}
-              appliedCustomFilters={appliedCustomFilters}
-              appliedFiltersRowStructure={appliedFiltersRowStructure}
-              setAppliedFiltersRowStructure={this.setAppliedFiltersRowStructure}
-              updateAttributes={this.updateJsonExt}
-              getDefaultAppliedCustomFilters={this.getDefaultAppliedCustomFilters}
-              readOnly={readOnly}
-            />
-            )}
         <Grid container className={classes.item}>
           <Grid item xs={3} className={classes.item}>
             <TextInput
@@ -183,6 +179,46 @@ class PayrollHeadPanel extends FormPanel {
             />
           </Grid>
         </Grid>
+        <Divider />
+        {!isPayrollFromFailedInvoices
+            && (
+            <>
+              <>
+                <Typography>
+                  <div className={classes.item}>
+                    <FormattedMessage module="contributionPlan" id="paymentPlan.advancedCriteria" />
+                  </div>
+                </Typography>
+                {!readOnly && (
+                  <div className={classes.item}>
+                    <FormattedMessage module="contributionPlan" id="paymentPlan.advancedCriteria.tip" />
+                  </div>
+                )}
+                <Divider />
+                <Grid container className={classes.item}>
+
+                  <AdvancedFiltersDialog
+                    object={payroll?.paymentPlan?.benefitPlan
+                      ? JSON.parse(JSON.parse(payroll.paymentPlan.benefitPlan))
+                      : null}
+                    objectToSave={payroll}
+                    moduleName="social_protection"
+                    objectType="BenefitPlan"
+                    setAppliedCustomFilters={this.setAppliedCustomFilters}
+                    appliedCustomFilters={appliedCustomFilters}
+                    appliedFiltersRowStructure={appliedFiltersRowStructure}
+                    setAppliedFiltersRowStructure={this.setAppliedFiltersRowStructure}
+                    updateAttributes={this.updateJsonExt}
+                    getDefaultAppliedCustomFilters={() => this.getDefaultAppliedCustomFilters(payroll.jsonExt)}
+                    readOnly={readOnly}
+                    edited={this.props.edited}
+                  />
+
+                </Grid>
+              </>
+              <Divider />
+            </>
+            )}
       </>
     );
   }

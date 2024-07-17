@@ -47,23 +47,13 @@ function AdvancedFiltersDialog({
   const [currentFilter, setCurrentFilter] = useState({
     field: '', filter: '', type: '', value: '', amount: '',
   });
-  const [filters, setFilters] = useState(getDefaultAppliedCustomFilters());
-
-  const getBenefitPlanDefaultCriteria = () => {
-    const { jsonExt } = edited?.benefitPlan ?? {};
-    try {
-      console.log(jsonExt, 'jsex');
-      const jsonData = JSON.parse(jsonExt);
-      return jsonData.advanced_criteria || [];
-    } catch (error) {
-      console.log(error, 'error jsex');
-      return [];
-    }
-  };
+  const [filters, setFilters] = useState(getDefaultAppliedCustomFilters(objectToSave.jsonExt));
 
   useEffect(() => {
-    console.log('wwwww');
-    setFilters(getBenefitPlanDefaultCriteria());
+    setFilters(getDefaultAppliedCustomFilters(objectToSave.jsonExt));
+  }, [objectToSave.jsonExt]);
+
+  useEffect(() => {
   }, [edited]);
 
   const createParams = (moduleName, objectTypeName, uuidOfObject = null, additionalParams = null) => {
@@ -81,11 +71,6 @@ function AdvancedFiltersDialog({
   };
 
   const fetchFilters = (params) => fetchCustomFilter(params);
-
-  const handleOpen = () => {
-    setFilters(getDefaultAppliedCustomFilters());
-    setIsOpen(true);
-  };
 
   const handleClose = () => {
     setCurrentFilter(CLEARED_STATE_FILTER);
@@ -148,7 +133,6 @@ function AdvancedFiltersDialog({
       fetchFilters(paramsToFetchFilters);
     }
   }, [object]);
-  console.log(filters);
   return (
     <>
       {filters.map((filter, index) => (
@@ -209,14 +193,6 @@ function AdvancedFiltersDialog({
               paddingRight: '16px',
             }}
             >
-              <Button
-                onClick={handleClose}
-                variant="outlined"
-                autoFocus
-                style={{ margin: '0 16px' }}
-              >
-                {formatMessage(intl, 'payroll', 'payroll.advancedFilters.button.cancel')}
-              </Button>
               <Button
                 onClick={saveCriteria}
                 variant="contained"

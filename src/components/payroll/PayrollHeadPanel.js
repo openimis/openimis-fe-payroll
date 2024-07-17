@@ -35,24 +35,32 @@ class PayrollHeadPanel extends FormPanel {
     };
   }
 
+  componentDidMount() {
+    this.setStateFromProps(this.props);
+  }
+
+  setStateFromProps = (props) => {
+    const { jsonExt } = props?.edited ?? {};
+    if (jsonExt) {
+      const filters = this.getDefaultAppliedCustomFilters(jsonExt);
+      this.setState({ appliedCustomFilters: filters, appliedFiltersRowStructure: filters });
+    }
+  };
+
   updateJsonExt = (value) => {
     this.updateAttributes({
       jsonExt: value,
     });
   };
 
-  getDefaultAppliedCustomFilters = () => {
-    console.log(this.props?.edited, 'xx');
-    const { jsonExt } = this.props?.edited ?? {};
-    console.log(jsonExt, 'xx');
+  // eslint-disable-next-line class-methods-use-this
+  getDefaultAppliedCustomFilters = (jsonExt) => {
     try {
       const jsonData = JSON.parse(jsonExt);
       const advancedCriteria = jsonData.advanced_criteria || [];
-      console.log(advancedCriteria, 'ad');
-      return advancedCriteria.map(({ custom_filter_condition }) => {
+      const transformedCriteria = advancedCriteria.map(({ custom_filter_condition }) => {
         const [field, filter, typeValue] = custom_filter_condition.split('__');
         const [type, value] = typeValue.split('=');
-        console.log(custom_filter_condition);
         return {
           custom_filter_condition,
           field,
@@ -61,8 +69,8 @@ class PayrollHeadPanel extends FormPanel {
           value,
         };
       });
+      return transformedCriteria;
     } catch (error) {
-      console.log(error, 'xxx');
       return [];
     }
   };
@@ -181,9 +189,11 @@ class PayrollHeadPanel extends FormPanel {
                     <FormattedMessage module="contributionPlan" id="paymentPlan.advancedCriteria" />
                   </div>
                 </Typography>
-                <div className={classes.item}>
-                  <FormattedMessage module="contributionPlan" id="paymentPlan.advancedCriteria.tip" />
-                </div>
+                {!readOnly && (
+                  <div className={classes.item}>
+                    <FormattedMessage module="contributionPlan" id="paymentPlan.advancedCriteria.tip" />
+                  </div>
+                )}
                 <Divider />
                 <Grid container className={classes.item}>
 
@@ -199,7 +209,7 @@ class PayrollHeadPanel extends FormPanel {
                     appliedFiltersRowStructure={appliedFiltersRowStructure}
                     setAppliedFiltersRowStructure={this.setAppliedFiltersRowStructure}
                     updateAttributes={this.updateJsonExt}
-                    getDefaultAppliedCustomFilters={this.getDefaultAppliedCustomFilters}
+                    getDefaultAppliedCustomFilters={() => this.getDefaultAppliedCustomFilters(payroll.jsonExt)}
                     readOnly={readOnly}
                     edited={this.props.edited}
                   />

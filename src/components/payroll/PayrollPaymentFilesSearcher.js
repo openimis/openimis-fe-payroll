@@ -16,6 +16,7 @@ import {
 } from '../../constants';
 import { fetchPayrollPaymentFiles } from '../../actions';
 import downloadPayroll from '../../utils/export';
+import AdditionalFieldsDialog from './dialogs/AdditionalFieldsDialog';
 
 function PayrollPaymentFilesSearcher({
   fetchingPayrollFiles,
@@ -35,6 +36,7 @@ function PayrollPaymentFilesSearcher({
     'payrollPaymentFile.status',
     'payrollPaymentFile.error',
     'payrollPaymentFile.download',
+    '',
   ];
 
   const defaultFilters = () => {
@@ -75,6 +77,13 @@ function PayrollPaymentFilesSearcher({
           <DownloadIcon />
         </IconButton>
       </Tooltip>
+    ),
+    (file) => (
+      <AdditionalFieldsDialog
+        jsonExt={file?.jsonExt}
+        buttonLabel="payroll.summaryUpload"
+        title="payroll.summaryUpload"
+      />
     ),
   ];
 

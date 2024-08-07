@@ -79,6 +79,8 @@ function BenefitConsumptionSearcher({
     (benefitConsumption) => (
       <AdditionalFieldsDialog
         jsonExt={benefitConsumption?.jsonExt}
+        buttonLabel="payroll.additonalFields.showAdditionalFields"
+        title="payroll.additonalFields.label"
       />
     ),
   ];

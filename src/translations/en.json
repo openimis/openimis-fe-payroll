@@ -147,5 +147,9 @@
     "payroll.benefitConsumption.confirm": "Confirm",
     "payroll.benefitConsumption.cancel": "Cancel",
     "payroll.benefitConsumption.delete.confirm.title": "Delete Benefit Consumption",
-    "payroll.benefitConsumption.delete.confirm.message": "Are you sure you want to delete the Benefit Consumption? Once you click confirm, additional approval on the task level is required to permanently delete it."
+    "payroll.benefitConsumption.delete.confirm.message": "Are you sure you want to delete the Benefit Consumption? Once you click confirm, additional approval on the task level is required to permanently delete it.",
+    
+    "payroll.additonalFields.label": "Additional Fields",
+    "payroll.additonalFields.showAdditionalFields": "Show Additional Fields",
+    "payroll.additonalFields.close": "Close"
 }

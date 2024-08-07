@@ -19,6 +19,7 @@ import {
 import BenefitConsumptionFilterModal from './BenefitConsumptionFilterModal';
 import ErrorSummaryModal from './dialogs/ErrorSummaryModal';
 import { mutationLabel } from '../../utils/string-utils';
+import AdditionalFieldsDialog from './dialogs/AdditionalFieldsDialog';
 
 function BenefitConsumptionSearcherModal({
   fetchBenefitAttachments,
@@ -86,6 +87,7 @@ function BenefitConsumptionSearcherModal({
     'benefitConsumption.paymentDate',
     'benefitConsumption.status',
     '',
+    '',
   ];
 
   const confirmDeleteBenefitConsumption = (benefit) => {
@@ -132,6 +134,11 @@ function BenefitConsumptionSearcherModal({
         : benefitAttachment?.bill?.datePayed
     ),
     (benefitAttachment) => benefitAttachment?.benefit?.status,
+    (benefitAttachment) => (
+      <AdditionalFieldsDialog
+        jsonExt={benefitAttachment?.benefit?.jsonExt}
+      />
+    ),
     (benefitAttachment) => (
       <Button
         onClick={() => {}}

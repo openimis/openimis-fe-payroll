@@ -137,6 +137,8 @@ function BenefitConsumptionSearcherModal({
     (benefitAttachment) => (
       <AdditionalFieldsDialog
         jsonExt={benefitAttachment?.benefit?.jsonExt}
+        buttonLabel="payroll.additonalFields.showAdditionalFields"
+        title="payroll.additonalFields.label"
       />
     ),
     (benefitAttachment) => (

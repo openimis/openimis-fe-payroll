@@ -151,5 +151,6 @@
     
     "payroll.additonalFields.label": "Additional Fields",
     "payroll.additonalFields.showAdditionalFields": "Show Additional Fields",
-    "payroll.additonalFields.close": "Close"
+    "payroll.additonalFields.close": "Close",
+    "payroll.summaryUpload": "Summary Upload"
 }

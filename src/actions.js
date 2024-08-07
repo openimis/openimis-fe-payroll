@@ -92,6 +92,7 @@ const CSV_RECONCILIATION_PROJECTION = () => [
   'fileName',
   'status',
   'error',
+  'jsonExt',
 ];
 
 const PAYMENT_METHOD_PROJECTION = () => [

@@ -24,6 +24,8 @@ function AdditionalFieldsDialog({
   intl,
   classes,
   jsonExt,
+  buttonLabel,
+  title,
 }) {
   // eslint-disable-next-line no-param-reassign
   if (!jsonExt) jsonExt = '{}';
@@ -50,7 +52,7 @@ function AdditionalFieldsDialog({
           marginTop: '6px',
         }}
       >
-        {formatMessage(intl, 'payroll', 'payroll.additonalFields.showAdditionalFields')}
+        {formatMessage(intl, 'payroll', buttonLabel)}
       </Button>
       <Dialog
         open={isOpen}
@@ -69,7 +71,7 @@ function AdditionalFieldsDialog({
               marginTop: '10px',
             }}
           >
-            {formatMessage(intl, 'payroll', 'payroll.additonalFields.label')}
+            {formatMessage(intl, 'payroll', title)}
           </DialogTitle>
           <DialogContent>
             <div

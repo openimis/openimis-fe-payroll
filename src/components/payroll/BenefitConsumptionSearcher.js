@@ -10,6 +10,7 @@ import PhotoCameraOutlinedIcon from '@material-ui/icons/PhotoCameraOutlined';
 import { fetchBenefitConsumptions } from '../../actions';
 import { BENEFIT_CONSUMPTION_STATUS, DEFAULT_PAGE_SIZE, ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import BenefitConsumptionFilter from './BenefitConsumptionFilter';
+import AdditionalFieldsDialog from './dialogs/AdditionalFieldsDialog';
 
 function BenefitConsumptionSearcher({
   fetchBenefitConsumptions,
@@ -39,6 +40,7 @@ function BenefitConsumptionSearcher({
     'benefitConsumption.status',
     'benefitConsumption.payedOnTime',
     'benefitConsumption.paymentDate',
+    '',
   ];
 
   const checkBenefitDueDate = (benefitConsumption) => {
@@ -73,6 +75,11 @@ function BenefitConsumptionSearcher({
       !benefitConsumption.receipt
         ? ''
         : benefitConsumption?.benefitAttachment[0]?.bill?.datePayed
+    ),
+    (benefitConsumption) => (
+      <AdditionalFieldsDialog
+        jsonExt={benefitConsumption?.jsonExt}
+      />
     ),
   ];
 

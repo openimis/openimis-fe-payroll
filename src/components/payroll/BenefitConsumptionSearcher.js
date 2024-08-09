@@ -1,7 +1,14 @@
+/* eslint-disable max-len */
+/* eslint-disable no-return-assign */
 /* eslint-disable no-param-reassign */
-import React from 'react';
+import React, { useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import PrintIcon from '@material-ui/icons/Print';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import {
+  Typography, Button,
+} from '@material-ui/core';
 
 import {
   Searcher, useModulesManager, useTranslations,
@@ -11,6 +18,7 @@ import { fetchBenefitConsumptions } from '../../actions';
 import { BENEFIT_CONSUMPTION_STATUS, DEFAULT_PAGE_SIZE, ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import BenefitConsumptionFilter from './BenefitConsumptionFilter';
 import AdditionalFieldsDialog from './dialogs/AdditionalFieldsDialog';
+import PayrollPrintTemplate from '../PayrollPrintTemplate';
 
 function BenefitConsumptionSearcher({
   fetchBenefitConsumptions,
@@ -25,6 +33,11 @@ function BenefitConsumptionSearcher({
 }) {
   const modulesManager = useModulesManager();
   const { formatMessageWithValues } = useTranslations('payroll', modulesManager);
+  const payrollPrintTemplateRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    documentTitle: `${payrollUuid}`,
+  });
 
   const fetch = (params) => fetchBenefitConsumptions(modulesManager, params);
 
@@ -127,28 +140,48 @@ function BenefitConsumptionSearcher({
   );
 
   return (
-    <div>
-      <Searcher
-        module="payroll"
-        FilterPane={!isPayrollFromFailedInvoices && benefitConsumptionFilter}
-        fetch={fetch}
-        items={benefitConsumptions}
-        itemsPageInfo={benefitConsumptionsPageInfo}
-        fetchingItems={fetchingBenefitConsumptions}
-        fetchedItems={fetchedBenefitConsumptions}
-        errorItems={errorBenefitConsumptions}
-        tableTitle={
-          formatMessageWithValues('benefitConsumption.searcherResultsTitle', { benefitConsumptionsTotalCount })
-        }
-        headers={headers}
-        itemFormatters={itemFormatters}
-        sorts={sorts}
-        rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-        defaultPageSize={DEFAULT_PAGE_SIZE}
-        rowIdentifier={rowIdentifier}
-        defaultFilters={defaultFilters()}
-      />
-    </div>
+    <>
+      <div>
+        <Button
+          size="small"
+          variant="contained"
+          color="primary"
+          startIcon={<PrintIcon />}
+          onClick={(e) => {
+            e.preventDefault();
+            handlePrint(null, () => payrollPrintTemplateRef.current);
+          }}
+        >
+          <Typography variant="subtitle1">Print</Typography>
+        </Button>
+      </div>
+      <div>
+        <Searcher
+          module="payroll"
+          FilterPane={!isPayrollFromFailedInvoices && benefitConsumptionFilter}
+          fetch={fetch}
+          items={benefitConsumptions}
+          itemsPageInfo={benefitConsumptionsPageInfo}
+          fetchingItems={fetchingBenefitConsumptions}
+          fetchedItems={fetchedBenefitConsumptions}
+          errorItems={errorBenefitConsumptions}
+          tableTitle={formatMessageWithValues('benefitConsumption.searcherResultsTitle', { benefitConsumptionsTotalCount })}
+          headers={headers}
+          itemFormatters={itemFormatters}
+          sorts={sorts}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          defaultPageSize={DEFAULT_PAGE_SIZE}
+          rowIdentifier={rowIdentifier}
+          defaultFilters={defaultFilters()}
+        />
+        <div style={{ display: 'none' }}>
+          <PayrollPrintTemplate
+            ref={payrollPrintTemplateRef}
+            benefitConsumptions={benefitConsumptions}
+          />
+        </div>
+      </div>
+    </>
   );
 }
 

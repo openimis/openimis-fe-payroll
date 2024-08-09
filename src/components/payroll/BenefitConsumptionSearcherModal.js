@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-param-reassign */
 import React, { useState, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';

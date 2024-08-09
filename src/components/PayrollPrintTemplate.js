@@ -124,10 +124,6 @@ const PayrollPrintTemplate = forwardRef(({ benefitConsumptions }, ref) => {
             <div className={classes.detailValue}>{benefitConsumption.status}</div>
           </div>
           <div className={classes.detailRow}>
-            <div className={classes.detailName}>{formatMessage('payroll.benefitConsumption.payedOnTime')}</div>
-            <div className={classes.detailValue}>{benefitConsumption.payedOnTime ? 'Yes' : 'No'}</div>
-          </div>
-          <div className={classes.detailRow}>
             <div className={classes.detailName}>{formatMessage('payroll.benefitConsumption.paymentDate')}</div>
             <div className={classes.detailValue}>
               {!benefitConsumption.receipt

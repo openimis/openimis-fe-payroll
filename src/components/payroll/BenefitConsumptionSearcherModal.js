@@ -1,9 +1,13 @@
+/* eslint-disable max-len */
 /* eslint-disable no-param-reassign */
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import PrintIcon from '@material-ui/icons/Print';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
+import Typography from '@material-ui/core/Typography';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
@@ -20,6 +24,7 @@ import BenefitConsumptionFilterModal from './BenefitConsumptionFilterModal';
 import ErrorSummaryModal from './dialogs/ErrorSummaryModal';
 import { mutationLabel } from '../../utils/string-utils';
 import AdditionalFieldsDialog from './dialogs/AdditionalFieldsDialog';
+import PayrollBenefitPrintTemplate from '../PayrollBenefitPrintTemplate';
 
 function BenefitConsumptionSearcherModal({
   fetchBenefitAttachments,
@@ -39,6 +44,11 @@ function BenefitConsumptionSearcherModal({
   const [selectedBenefitAttachment, setSelectedBenefitAttachment] = useState(null);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [benefitToDelete, setBenefitToDelete] = useState(null);
+  const payrollPrintTemplateRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    documentTitle: `${payrollUuid}`,
+  });
 
   const fetch = (params) => {
     fetchBenefitAttachments(modulesManager, params);
@@ -193,54 +203,74 @@ function BenefitConsumptionSearcherModal({
   );
 
   return (
-    <div>
-      <Searcher
-        module="payroll"
-        FilterPane={benefitConsumptionFilterModal}
-        fetch={fetch}
-        items={benefitAttachments}
-        itemsPageInfo={benefitAttachmentsPageInfo}
-        fetchingItems={fetchingBenefitAttachments}
-        fetchedItems={fetchedBenefitAttachments}
-        errorItems={errorBenefitAttachments}
-        tableTitle={
-          formatMessageWithValues('benefitAttachment.searcherResultsTitle', { benefitAttachmentsTotalCount })
-        }
-        headers={headers}
-        itemFormatters={itemFormatters}
-        sorts={sorts}
-        rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-        defaultPageSize={DEFAULT_PAGE_SIZE}
-        rowIdentifier={rowIdentifier}
-        defaultFilters={defaultFilters()}
-      />
-      {selectedBenefitAttachment && (
+    <>
+      <div>
+        <Button
+          size="small"
+          variant="contained"
+          color="primary"
+          startIcon={<PrintIcon />}
+          onClick={(e) => {
+            e.preventDefault();
+            handlePrint(null, () => payrollPrintTemplateRef.current);
+          }}
+        >
+          <Typography variant="subtitle1">Print</Typography>
+        </Button>
+      </div>
+      <div>
+        <Searcher
+          module="payroll"
+          FilterPane={benefitConsumptionFilterModal}
+          fetch={fetch}
+          items={benefitAttachments}
+          itemsPageInfo={benefitAttachmentsPageInfo}
+          fetchingItems={fetchingBenefitAttachments}
+          fetchedItems={fetchedBenefitAttachments}
+          errorItems={errorBenefitAttachments}
+          tableTitle={formatMessageWithValues('benefitAttachment.searcherResultsTitle', { benefitAttachmentsTotalCount })}
+          headers={headers}
+          itemFormatters={itemFormatters}
+          sorts={sorts}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          defaultPageSize={DEFAULT_PAGE_SIZE}
+          rowIdentifier={rowIdentifier}
+          defaultFilters={defaultFilters()}
+        />
+        {selectedBenefitAttachment && (
         <ErrorSummaryModal
           open={!!selectedBenefitAttachment}
           onClose={() => setSelectedBenefitAttachment(null)}
           benefitAttachment={selectedBenefitAttachment}
         />
-      )}
-      <Dialog
-        open={openConfirmDialog}
-        onClose={() => setOpenConfirmDialog(false)}
-      >
-        <DialogTitle>{formatMessage('benefitConsumption.delete.confirm.title')}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {formatMessage('benefitConsumption.delete.confirm.message')}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
-            {formatMessage('benefitConsumption.cancel')}
-          </Button>
-          <Button onClick={handleDeleteBenefitConsumption} color="primary" autoFocus>
-            {formatMessage('benefitConsumption.confirm')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+        )}
+        <Dialog
+          open={openConfirmDialog}
+          onClose={() => setOpenConfirmDialog(false)}
+        >
+          <DialogTitle>{formatMessage('benefitConsumption.delete.confirm.title')}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {formatMessage('benefitConsumption.delete.confirm.message')}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
+              {formatMessage('benefitConsumption.cancel')}
+            </Button>
+            <Button onClick={handleDeleteBenefitConsumption} color="primary" autoFocus>
+              {formatMessage('benefitConsumption.confirm')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <div style={{ display: 'none' }}>
+          <PayrollBenefitPrintTemplate
+            ref={payrollPrintTemplateRef}
+            benefitAttachments={benefitAttachments}
+          />
+        </div>
+      </div>
+    </>
   );
 }
 

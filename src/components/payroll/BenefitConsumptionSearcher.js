@@ -127,9 +127,9 @@ function BenefitConsumptionSearcher({
     };
     if (isPayrollFromFailedInvoices) {
       filters.status = {
-        value: BENEFIT_CONSUMPTION_STATUS.ACCEPTED,
+        value: true,
         filter:
-              `status: ${BENEFIT_CONSUMPTION_STATUS.ACCEPTED}`,
+        `filterOnlyUnpaid: ${true}`,
       };
     }
     return filters;
